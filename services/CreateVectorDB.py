@@ -7,17 +7,15 @@ import glob
 
 
 #khai báo và khởi tạo một số biến
-pdf_data_path_vn = "../../dataset/Vietnamese-languageBooks"
-pdf_data_path_en = "../../dataset/English-languageBooks"
-vector_db_path_vn = "../../database/db_vector_vn"
-vector_db_path_en = "../../database/db_vector_en"
+pdf_data_path = "../../dataset/Temp_Books"
+vector_db_path = "../../database/db_vector_vn"
 
 
-list_file_paths = glob.glob(os.path.join(pdf_data_path_vn, '*.pdf'))
+list_file_paths = glob.glob(os.path.join(pdf_data_path, '*.pdf'))
 embedding_model = GPT4AllEmbeddings()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
 
-new_db = FAISS.load_local(vector_db_path_vn, embedding_model)
+new_db = FAISS.load_local(vector_db_path, embedding_model)
 
 for path in list_file_paths:
     try:
@@ -37,4 +35,4 @@ for path in list_file_paths:
     except Exception as e:
         continue
 
-new_db.save_local(vector_db_path_vn)
+new_db.save_local(vector_db_path)
