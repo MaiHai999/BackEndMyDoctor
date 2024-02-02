@@ -1,6 +1,7 @@
 from BackEnd.source.entity.LoadVectorDB import LoadVectorDB
 
-
-db = LoadVectorDB()
-text = db.querying("Nguyên nhân bệnh đau đầu ")
-print(text)
+path = "../../asset/database/db_vector_en"
+db = LoadVectorDB(path)
+text = db.querying("covid 19 how many people died" , k = 2)
+for i in text:
+    print(i , end="\n\n\n\n")

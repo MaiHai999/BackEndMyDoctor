@@ -1,4 +1,3 @@
-
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_community.vectorstores import FAISS
 
@@ -13,16 +12,13 @@ class LoadVectorDB:
         list_text = [docs[i].page_content for i in range(k)]
         return list_text
 
-    def score_search(self ,query, k = 1 ):
+    def score_search(self ,query):
         docs_and_scores = self.db.similarity_search_with_score(query)
-        list_text_scores = [(docs_and_scores[0][i].page_content ,docs_and_scores[1]) for i in range(k)]
+        list_text_scores = [(doc[0].page_content , doc[1]) for doc in docs_and_scores]
         return list_text_scores
 
-    
-
-
-
-
-
-
+    def get_all_data(self):
+        dict_db = self.db.docstore._dict
+        for key in dict_db:
+            print("Key:",key , "Value:", dict_db[key])
 
