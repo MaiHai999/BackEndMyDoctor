@@ -22,3 +22,8 @@ class LoadVectorDB:
         for key in dict_db:
             print("Key:",key , "Value:", dict_db[key])
 
+    def get_len_db(self):
+        dict_db = self.db.docstore._dict
+        return len(dict_db)
+
+
