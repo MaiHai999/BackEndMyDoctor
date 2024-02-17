@@ -1,37 +1,38 @@
-from langchain_community.llms import CTransformers
-from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
-class LoadModel:
 
-    @staticmethod
-    def load_ctransformers(path ,model_type="llama" , max_new_tokens = 1024, temperature=0.01 ):
-        llm = CTransformers(
-            model = path,
-            model_type = model_type,
-            max_new_tokens = max_new_tokens,
-            temperature = temperature
+class LoadLLM:
+    def __init__(self , base_url = "http://192.168.1.14:9999/v1" , temperature = 0.7):
+        self.llm = ChatOpenAI(
+            base_url = base_url,
+            temperature = temperature,
+            api_key="not-needed"
         )
 
-        return llm
+        self.output_parser = StrOutputParser()
 
-    @staticmethod
-    def load_llm_huggingface(path , gpu = -1 , accelerate = False , max_new_tokens = 1024):
-        if accelerate is False:
-            llm = HuggingFacePipeline.from_model_id(
-                model_id = path,
-                task="text-generation",
-                device = gpu,
-                pipeline_kwargs={"max_new_tokens": max_new_tokens},
-            )
-            return llm
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system","Your name is Safa.Please create the correct answer. The answer must be Vietnamese"),
+            ("user", "{input}")
+        ])
 
-        else:
-            gpu_llm = HuggingFacePipeline.from_model_id(
-                model_id= path,
-                task="text-generation",
-                device_map="auto",  # replace with device_map="auto" to use the accelerate library.
-                pipeline_kwargs={"max_new_tokens": max_new_tokens},
-            )
-            return gpu_llm
+    def customPrompt(self , message):
+        self.prompt = ChatPromptTemplate.from_messages(message)
+
+    def customOutput(self):
+        self.output_parser = StrOutputParser()
+
+    def CreatChain(self):
+        chain = self.prompt | self.llm | self.output_parser
+        return chain
 
 
+
+if __name__ == "__main__":
+    llm = LoadLLM()
+    chain = llm.CreatChain()
+
+    for chunk in chain.stream({"input" : "Bệnh tiểu đường là gì"}):
+        print(chunk, end="", flush=True)

@@ -4,7 +4,7 @@ import time
 
 
 class LoadVectorDB:
-    def __init__(self,path_vector_db):
+    def __init__(self,path_vector_db = "../../asset/database/db_vector_en"):
         embedding_model = GPT4AllEmbeddings()
         self.db = FAISS.load_local(path_vector_db, embedding_model)
 
