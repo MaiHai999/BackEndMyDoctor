@@ -4,7 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 
 class LoadLLM:
-    def __init__(self , base_url = "http://192.168.1.14:9999/v1" , temperature = 0.7):
+    def __init__(self , base_url , temperature = 0.5):
         self.llm = ChatOpenAI(
             base_url = base_url,
             temperature = temperature,
@@ -12,16 +12,12 @@ class LoadLLM:
         )
 
         self.output_parser = StrOutputParser()
+        self.prompt = None
 
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system","Your name is Safa.Please create the correct answer. The answer must be Vietnamese"),
-            ("user", "{input}")
-        ])
-
-    def customPrompt(self , message):
+    def setPrompt(self , message):
         self.prompt = ChatPromptTemplate.from_messages(message)
 
-    def customOutput(self):
+    def setOutput(self):
         self.output_parser = StrOutputParser()
 
     def CreatChain(self):
@@ -32,6 +28,12 @@ class LoadLLM:
 
 if __name__ == "__main__":
     llm = LoadLLM()
+    prompt_general = [
+        ("system", "Bạn tên là Safa. Bạn là trợ lý ảo chỉ cung cấp các thông tin về y tế."),
+        ("user", "{input}")
+    ]
+    llm.setPrompt(prompt_general)
+
     chain = llm.CreatChain()
 
     for chunk in chain.stream({"input" : "Bệnh tiểu đường là gì"}):
