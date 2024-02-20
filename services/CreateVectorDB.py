@@ -10,7 +10,6 @@ import glob
 pdf_data_path = "../../dataset/Temp_Books"
 vector_db_path = "../../database/db_vector_vn"
 
-llm
 list_file_paths = glob.glob(os.path.join(pdf_data_path, '*.pdf'))
 embedding_model = GPT4AllEmbeddings()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)

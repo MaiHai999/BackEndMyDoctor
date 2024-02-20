@@ -39,11 +39,11 @@ class MyConnect:
 
 if __name__ == "__main__":
     user = 'root'
-    password = '55'
+    password = '01692032691'
 
     my_connect = MyConnect(user ,password)
     my_connect.connect()
 
-    query = "SELECT * FROM User"
+    query = "SELECT * FROM MyDoctor.User;"
     result = my_connect.execute_query(query)
     print("Result: ", result)
