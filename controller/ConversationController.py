@@ -29,18 +29,23 @@ session = db_manager.get_session()
 @con_blueprint.route('/get_conversation', methods=["GET"])
 @jwt_required()
 def get_conversation():
-    identity = get_jwt_identity()
-    id_user = identity['id_user']
-    user = EntityHandler.get_entity_id(session , User , id_user)
-    conversation_list = []
-    for conversation in user.conversations:
-        conversation_dict = {
-            'id': conversation.id,
-            'title': conversation.title,
-            'create_date': conversation.create_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'id_user': conversation.id_user,
-            'status': conversation.status
-        }
-        conversation_list.append(conversation_dict)
+    try:
+        identity = get_jwt_identity()
+        id_user = identity['id_user']
+        user = EntityHandler.get_entity_id(session , User , id_user)
+        conversation_list = []
+        for conversation in user.conversations:
+            conversation_dict = {
+                'id': conversation.id,
+                'title': conversation.title,
+                'create_date': conversation.create_date.strftime('%Y-%m-%d %H:%M:%S'),
+                'id_user': conversation.id_user,
+                'status': conversation.status
+            }
+            conversation_list.append(conversation_dict)
 
-    return jsonify(conversation_list), 200
+        return jsonify(conversation_list), 200
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
