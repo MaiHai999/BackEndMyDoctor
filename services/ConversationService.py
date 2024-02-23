@@ -1,16 +1,22 @@
 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String , DateTime
 
-class ConversationService:
-    def __init__(self, db):
-        self.db = db
+Base = declarative_base()
 
-    def create_models(self):
-        class Conversation(self.db.Model):
-            __tablename__ = 'Conversations'
-            id = self.db.Column("ID", self.db.Integer, primary_key=True)
-            title = self.db.Column('TITLE', self.db.String(300), unique=False, nullable=True)
-            create_date = self.db.Column('CREATDATE', self.db.DateTime, nullable=True)
-            id_user = self.db.Column('IDUSER', self.db.Integer, nullable=True)
-            status = self.db.Column('STATUS', self.db.Integer, nullable=True)
+class Conversation(Base):
+    __tablename__ = "Conversations"
+    id = Column('ID' ,Integer, primary_key=True)
+    title = Column('TITLE',String(300),nullable=True)
+    create_date = Column('CREATDATE' , DateTime , nullable=True)
+    id_user = Column('IDUSER' , Integer , nullable=True)
+    status = Column('STATUS', Integer , nullable=True)
 
-        return Conversation
+    def set_attribute(self , title, create_date, id_user, status):
+        self.title = title
+        self.create_date = create_date
+        self.id_user = id_user
+        self.status = status
+
+
+

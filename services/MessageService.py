@@ -1,16 +1,18 @@
 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, Text
 
-class MessageService:
-    def __init__(self, db):
-        self.db = db
+Base = declarative_base()
 
-    def create_models(self):
-        class Message(self.db.Model):
-            __tablename__ = 'Message'
-            id = self.db.Column("ID", self.db.Integer, primary_key=True)
-            human = self.db.Column('HUMAN', self.db.Text(), unique=False, nullable=True)
-            ai = self.db.Column('AI', self.db.Text(), nullable=True)
-            status = self.db.Column('STATUS', self.db.Integer, nullable=True)
-            id_conversation = self.db.Column('IDCONVERSATION', self.db.Integer, nullable=True)
+class Message(Base):
+    id = Column('ID' ,Integer, primary_key=True)
+    human = Column('HUMAN' ,Text)
+    ai = Column('AI' ,Text)
+    status = Column('STATUS' ,Integer)
+    id_conversation = Column('IDCONVERSATION' ,Integer)
 
-        return Message
+    def set_attribute(self ,human , ai , status , id_conversation):
+        self.human = human
+        self.ai = ai
+        self.status = status
+        self.id_conversation = id_conversation
