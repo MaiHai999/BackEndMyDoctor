@@ -16,5 +16,11 @@ class EntityHandler:
 
     @staticmethod
     def get_all(session , entity):
-        all_users = session.query(entity).all()
-        return all_users
+        all_entity = session.query(entity).all()
+        return all_entity
+
+    @staticmethod
+    def get_entity_id(session , entity , id):
+        entity_all = session.query(entity).filter_by(id=id).all()
+        return entity_all[0]
+

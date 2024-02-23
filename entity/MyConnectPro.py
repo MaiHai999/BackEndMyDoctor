@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine, Column, Integer, String , text
 from sqlalchemy.orm import sessionmaker
-from BackEnd.source.services.UserService import User
+from BackEnd.source.services.models import User
 from sqlalchemy.sql import select
 from BackEnd.source.entity.EntityHandler import EntityHandler
 
