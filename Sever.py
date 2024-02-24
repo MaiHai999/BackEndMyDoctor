@@ -1,9 +1,9 @@
+import Config
 from flask import Flask
 from BackEnd.source.controller.AccountController import auth_blueprint
 from BackEnd.source.controller.ConversationController import con_blueprint
 from BackEnd.source.entity.MyConnectPro import MyConnectPro
 from BackEnd.source.services.models import *
-import Config
 from datetime import timedelta
 import os
 from flask_jwt_extended import JWTManager

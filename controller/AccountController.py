@@ -30,9 +30,12 @@ session = db_manager.get_session()
 def check_login(email , password):
     try:
         user = session.query(User).filter(User.email == email).one()
-        return check_password_hash(user.password , password), user
+        if check_password_hash(user.password , password):
+            return user
+        else:
+            return None
     except NoResultFound:
-        return 0 , 0
+        return None
 
 @auth_blueprint.route('/login' , methods=['POST'])
 def login():
@@ -40,17 +43,16 @@ def login():
         #Lấy các tham số
         email = request.json.get('email')
         password = request.json.get('password')
-        role , user = check_login(email , password)
+        user = check_login(email , password)
 
         #tạo tokens
-        if role:
-            role_info = {
-                "role": user.role,
+        if user is not None:
+            iden_info = {
                 "id_user": user.id
             }
 
-            access_token = create_access_token(identity=role_info, fresh=True)
-            refresh_token = create_refresh_token(identity=role_info)
+            access_token = create_access_token(identity=iden_info, fresh=True)
+            refresh_token = create_refresh_token(identity=iden_info)
             return jsonify(user_name = user.email ,access_token=access_token, refresh_token=refresh_token) , 200
         else:
             return jsonify({"msg": "Bad username or password"}), 401
@@ -93,9 +95,15 @@ def logout():
         jti = jwt['jti']
         token = BlockToken()
         token.set_attribute(jti)
-        EntityHandler.save(session, token)
-        response = jsonify({"msg": "Logged out successfully"})
-        return response, 200
+        is_successfully = EntityHandler.save(session, token)
+        if is_successfully:
+            response = jsonify({"msg": "Logged out successfully"})
+            return response, 200
+        else:
+            response = jsonify({"error": "Internal Server Error"})
+            return response, 500
+
+
 
     except Exception as e:
         error_message = "Error: {}".format(str(e))
@@ -115,17 +123,21 @@ def register():
         #lấy các tham số
         email = request.json.get('email')
         password = request.json.get('password')
-        role = request.json.get('role')
 
         if validation_register(email):
             response = jsonify({"msg": "Email already exists"})
             return response, 200
         else:
             users = User()
-            users.set_attribute(email, password, None, None, role)
-            EntityHandler.save(session, users)
-            response = jsonify({"msg": "Register successfully"})
-            return response , 200
+            users.set_attribute(email, password, None, None)
+            is_successfully = EntityHandler.save(session, users)
+            if is_successfully:
+                response = jsonify({"msg": "Register successfully"})
+                return response, 200
+            else:
+                response = jsonify({"error": "Internal Server Error"})
+                return response, 500
+
 
     except Exception as e:
         error_message = "Error: {}".format(str(e))

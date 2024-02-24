@@ -6,9 +6,6 @@ from BackEnd.source.services.models import User
 from sqlalchemy.sql import select
 from BackEnd.source.entity.EntityHandler import EntityHandler
 
-
-
-
 class MyConnectPro:
     def __init__(self ,user , password, database = 'MyDoctor', host = 'localhost' , port = 3306):
         self.host = host
@@ -49,11 +46,6 @@ if __name__ == "__main__":
     users = User()
     users.set_attribute("haimai@gmail.com" , "99999" , None , None , 2)
     EntityHandler.save(session , users)
-
-
-
-
-
 
     all_users = EntityHandler.get_all(session , User)
 

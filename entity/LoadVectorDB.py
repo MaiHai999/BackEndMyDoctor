@@ -1,12 +1,16 @@
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_community.vectorstores import FAISS
+from BackEnd.source.Config import *
 import time
+import os
+
 
 
 class LoadVectorDB:
-    def __init__(self,path_vector_db = "../../asset/database/db_vector_en"):
+    def __init__(self):
+        path_db = os.environ.get("path_vector_db")
         embedding_model = GPT4AllEmbeddings()
-        self.db = FAISS.load_local(path_vector_db, embedding_model)
+        self.db = FAISS.load_local(path_db, embedding_model)
 
     def querying(self, query , k = 1):
         docs = self.db.similarity_search(query)
