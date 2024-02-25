@@ -6,11 +6,14 @@ from BackEnd.source.entity.MyConnectPro import EntityHandler
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required
 
-
+from datetime import datetime
+from functools import wraps
 from flask import Blueprint
 from flask import request , stream_with_context
 from flask import jsonify
 import os
+from sqlalchemy.exc import IntegrityError
+
 
 con_blueprint = Blueprint('conversation', __name__)
 
@@ -23,7 +26,7 @@ session = db_manager.get_session()
 
 #khởi tạo llm
 base_url = os.environ.get('base_url')
-LLM = LLMController(base_url)
+# LLM = LLMController(base_url)
 
 
 @con_blueprint.route('/conversation', methods=["GET"])
@@ -119,10 +122,70 @@ def delete():
 
 
 @con_blueprint.route('/chat', methods=["GET"])
-@jwt_required()
 def chat():
-    human_message = request.args.get('human')
-    return stream_with_context(LLM.query_message(human_message))
+    try:
+        human_message = request.args.get('human')
+        streamed_data = LLM.query_message(human_message)
+        return stream_with_context(streamed_data), 200
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
+
+
+@con_blueprint.route('/save', methods=["GET"])
+@jwt_required()
+def save_conversation():
+    try:
+        identity = get_jwt_identity()
+        id_user = identity['id_user']
+        human_message = request.args.get('human')
+        ai_message = request.args.get('ai')
+
+        try:
+            new_conversation = Conversation()
+            id = EntityHandler.generative_ID(session, Conversation)
+            new_conversation.set_attribute(title="Tăng huyết áp" , create_date=datetime.now() , id_user=id_user)
+            new_conversation.set_ID(id)
+            session.add(new_conversation)
+
+            new_message = Message()
+            new_message.set_attribute(human=human_message , ai=ai_message , create_date=datetime.now() ,id_conversation=new_conversation.id)
+            session.add(new_message)
+            session.commit()
+
+        except IntegrityError as e:
+            session.rollback()
+            error_message = "Error: {}".format(str(e))
+            response = jsonify({"error": error_message})
+            return response, 500
+
+        response = jsonify({"msg": "Successfully"})
+        return response, 200
+
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
+
+
+@con_blueprint.route('/emotion', methods=["GET"])
+@jwt_required()
+def save_emotions():
+    print("hải")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

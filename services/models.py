@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
+
 Base = declarative_base()
 
 
@@ -27,7 +28,7 @@ class User(Base):
 
 class Conversation(Base):
     __tablename__ = "Conversations"
-    id = Column('ID' ,Integer, primary_key=True)
+    id = Column('ID' ,Integer, primary_key=True, autoincrement=True)
     title = Column('TITLE',String(300),nullable=True)
     create_date = Column('CREATEDATE' , DateTime , nullable=True)
     id_user = Column('IDUSER',Integer , ForeignKey('User.ID') , nullable=True)
@@ -41,6 +42,9 @@ class Conversation(Base):
         self.id_user = id_user
         self.status = status
 
+    def set_ID(self , id):
+        self.id = id
+
 
 class Message(Base):
     __tablename__ = "Message"
@@ -51,10 +55,11 @@ class Message(Base):
     create_date = Column('CREATEDATE', DateTime, nullable=True)
     id_conversation = Column('IDCONVERSATION' ,Integer,ForeignKey('Conversations.ID'))
 
-    def set_attribute(self ,human , ai , status , id_conversation):
+    def set_attribute(self ,human , ai , create_date, id_conversation, status = None):
         self.human = human
         self.ai = ai
         self.status = status
+        self.create_date = create_date
         self.id_conversation = id_conversation
 
 

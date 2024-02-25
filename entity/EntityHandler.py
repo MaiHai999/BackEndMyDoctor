@@ -1,14 +1,14 @@
 
 
-
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 class EntityHandler:
 
     @staticmethod
-    def save(session, user_instance):
+    def save(session, entity):
         try:
-            session.add(user_instance)
+            session.add(entity)
             session.commit()
             result = True
         except IntegrityError as e:
@@ -41,5 +41,20 @@ class EntityHandler:
             result = False
 
         return result
+
+
+    @staticmethod
+    def generative_ID(session , entity):
+        all_entity = session.query(entity).all()
+        if all_entity:
+            max_id = session.query(func.max(entity.id)).scalar()
+        else:
+            max_id = 0
+
+        return max_id + 1
+
+
+
+
 
 
