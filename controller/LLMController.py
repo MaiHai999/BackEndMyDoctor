@@ -36,13 +36,13 @@ class LLMController:
             list_of_context = self.db.querying(translated_text , k=2)
             context = ' '.join(list_of_context)
             for chunk in self.chain_main.stream({"input": message, "context" : context}):
-                print(chunk, end="", flush=True)
-                # callback(chunk)
+                # print(chunk, end="", flush=True)
+                yield chunk
 
         else:
             for chunk in self.chain_general.stream({"input": message}):
-                print(chunk, end="", flush=True)
-                # callback(chunk)
+                # print(chunk, end="", flush=True)
+                yield chunk
 
 if __name__ == "__main__":
     base_url = "http://192.168.1.7:9999/v1"

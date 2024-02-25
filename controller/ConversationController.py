@@ -8,7 +8,7 @@ from flask_jwt_extended import jwt_required
 
 
 from flask import Blueprint
-from flask import request
+from flask import request , stream_with_context
 from flask import jsonify
 import os
 
@@ -122,10 +122,7 @@ def delete():
 @jwt_required()
 def chat():
     human_message = request.args.get('human')
-    LLM.query_message(human_message)
-
-    response = jsonify({"msg": "successfully"})
-    return response, 200
+    return stream_with_context(LLM.query_message(human_message))
 
 
 
