@@ -1,7 +1,7 @@
 from BackEnd.source.entity.MyConnectPro import MyConnectPro
 from BackEnd.source.services.models import *
 from BackEnd.source.entity.MyConnectPro import EntityHandler
-
+from BackEnd.source.Config import limiter
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
@@ -38,6 +38,7 @@ def check_login(email , password):
         return None
 
 @auth_blueprint.route('/login' , methods=['POST'])
+@limiter.limit("20 per day")
 def login():
     try:
         #Lấy các tham số
@@ -89,6 +90,7 @@ def refresh():
 
 @auth_blueprint.route('/logout', methods=["GET"])
 @jwt_required()
+@limiter.limit("20 per day")
 def logout():
     try:
         jwt = get_jwt()
@@ -118,6 +120,7 @@ def validation_register(email):
         return 0
 
 @auth_blueprint.route('/register', methods=["POST"])
+@limiter.limit("20 per day")
 def register():
     try:
         #lấy các tham số
@@ -145,10 +148,5 @@ def register():
         return response, 500
 
 
-@auth_blueprint.route('/test', methods=["GET"])
-@jwt_required()
-def protect():
-    response = jsonify({"msg": "test"})
-    return response, 200
 
 

@@ -25,8 +25,8 @@ class EntityHandler:
 
     @staticmethod
     def get_entity_id(session , entity , id):
-        entity_all = session.query(entity).filter_by(id=id).first()
-        return entity_all
+        entity = session.query(entity).filter_by(id=id).first()
+        return entity
 
     @staticmethod
     def update_status(session , entity , id , status):

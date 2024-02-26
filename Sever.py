@@ -1,4 +1,5 @@
 import Config
+from BackEnd.source.Config import limiter
 from flask import Flask
 from BackEnd.source.controller.AccountController import auth_blueprint
 from BackEnd.source.controller.ConversationController import con_blueprint
@@ -18,6 +19,8 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 
 jwt = JWTManager(app)
+limiter.init_app(app)
+
 
 # Route mặc định
 @app.route('/')

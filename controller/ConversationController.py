@@ -1,6 +1,7 @@
 from BackEnd.source.entity.MyConnectPro import MyConnectPro
 from BackEnd.source.services.models import *
 from BackEnd.source.controller.LLMController import LLMController
+from BackEnd.source.Config import limiter
 
 from BackEnd.source.entity.MyConnectPro import EntityHandler
 from flask_jwt_extended import get_jwt_identity, get_jwt
@@ -16,6 +17,8 @@ from sqlalchemy.exc import IntegrityError
 
 
 con_blueprint = Blueprint('conversation', __name__)
+#lấy limiter
+
 
 #khởi tạo session
 user = os.environ.get('tk_user')
@@ -31,6 +34,7 @@ base_url = os.environ.get('base_url')
 
 @con_blueprint.route('/conversation', methods=["GET"])
 @jwt_required()
+@limiter.limit("30 per 15 minutes")
 def get_all_conversation():
     try:
         identity = get_jwt_identity()
@@ -66,6 +70,7 @@ def check_conversation(id_user , id_conversation):
 
 @con_blueprint.route('/message', methods=["GET"])
 @jwt_required()
+@limiter.limit("70 per 15 minutes")
 def get_message():
     try:
         identity = get_jwt_identity()
@@ -95,6 +100,7 @@ def get_message():
         return response, 500
 
 @con_blueprint.route('/del_con', methods=["GET"])
+@limiter.limit("70 per 15 minutes")
 @jwt_required()
 def delete():
     try:
@@ -122,6 +128,7 @@ def delete():
 
 
 @con_blueprint.route('/chat', methods=["GET"])
+@limiter.limit("10 per minute")
 def chat():
     try:
         human_message = request.args.get('human')
@@ -135,6 +142,7 @@ def chat():
 
 @con_blueprint.route('/save', methods=["GET"])
 @jwt_required()
+@limiter.limit("10 per minute")
 def save_conversation():
     try:
         identity = get_jwt_identity()
@@ -169,10 +177,51 @@ def save_conversation():
         return response, 500
 
 
+def check_message(id_user , id_message):
+    message = EntityHandler.get_entity_id(session , Message , id_message)
+    if message is None:
+        return False
+    else:
+        conversation = EntityHandler.get_entity_id(session , Conversation , message.id_conversation)
+        if conversation is None:
+            return False
+        if conversation.id_user == id_user:
+            return True
+        else:
+            return False
+
+
 @con_blueprint.route('/emotion', methods=["GET"])
 @jwt_required()
+@limiter.limit("30 per minute")
 def save_emotions():
-    print("hải")
+    try:
+        identity = get_jwt_identity()
+        id_user = identity['id_user']
+        id_message = int(request.args.get('id_message'))
+        status = int(request.args.get('status'))
+
+        if check_message(id_user , id_message):
+            is_successfully = EntityHandler.update_status(session, Message, id_message, status)
+            if is_successfully:
+                response = jsonify({"msg": "Update status successfully"})
+                return response, 200
+            else:
+                response = jsonify({"error": "Internal Server Error"})
+                return response, 500
+
+        else:
+            response = jsonify({"mes": "Access denied to the data."})
+            return response, 403
+
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
+
+
+
+
 
 
 

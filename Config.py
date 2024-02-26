@@ -1,5 +1,8 @@
 import os
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
+limiter = Limiter(get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 os.environ["user_login"] = 'root'
 os.environ["password_login"] = '01692032691'
