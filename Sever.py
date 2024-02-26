@@ -22,11 +22,6 @@ jwt = JWTManager(app)
 limiter.init_app(app)
 
 
-# Route mặc định
-@app.route('/')
-def index():
-    return 'Trang chủ'
-
 #xem token có trong black list không
 @jwt.token_in_blocklist_loader
 def token_in_blocklist_callback(jwt_header, jwt_data):
