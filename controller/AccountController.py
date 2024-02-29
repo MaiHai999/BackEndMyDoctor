@@ -33,7 +33,7 @@ def check_login(email , password):
         if check_password_hash(user.password , password):
             return user
         else:
-            return None
+            return False
     except NoResultFound:
         return None
 
@@ -47,7 +47,11 @@ def login():
         user = check_login(email , password)
 
         #tạo tokens
-        if user is not None:
+        if user is None:
+            return jsonify({"msg": "Email not registered"}), 401
+        elif user is False:
+            return jsonify({"msg": "Incorrect password"}), 401
+        else:
             iden_info = {
                 "id_user": user.id
             }
@@ -55,8 +59,6 @@ def login():
             access_token = create_access_token(identity=iden_info, fresh=True)
             refresh_token = create_refresh_token(identity=iden_info)
             return jsonify(user_name = user.email ,access_token=access_token, refresh_token=refresh_token) , 200
-        else:
-            return jsonify({"msg": "Bad username or password"}), 401
 
     except Exception as e:
         error_message = "Error: {}".format(str(e))
