@@ -38,7 +38,7 @@ def check_login(email , password):
         return None
 
 @auth_blueprint.route('/login' , methods=['POST'])
-@limiter.limit("20 per day")
+# @limiter.limit("20 per day")
 def login():
     try:
         #Lấy các tham số
@@ -148,6 +148,18 @@ def register():
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
+
+@auth_blueprint.route('/test', methods=["GET"])
+def test():
+    try:
+        response = jsonify({"msg": "test successfully"})
+        return response, 200
+
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
+
 
 
 

@@ -9,8 +9,10 @@ from datetime import timedelta
 import os
 from flask_jwt_extended import JWTManager
 from flask import jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.register_blueprint(auth_blueprint, url_prefix='/auth')
 app.register_blueprint(con_blueprint, url_prefix='/mess')
 
@@ -43,4 +45,4 @@ def token_in_blocklist_callback(jwt_header, jwt_data):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True , port=9999)
