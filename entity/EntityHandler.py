@@ -42,6 +42,19 @@ class EntityHandler:
 
         return result
 
+    @staticmethod
+    def delete_entity(session, entity, id):
+        try:
+            entity_delete = session.query(entity).filter_by(id=id).first()
+            session.delete(entity_delete)
+            session.commit()
+            result = True
+        except IntegrityError as e:
+            session.rollback()
+            print(f"Error: {e}")
+            result = False
+
+        return result
 
     @staticmethod
     def generative_ID(session , entity):

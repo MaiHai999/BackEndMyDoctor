@@ -22,7 +22,8 @@ class User(Base):
 
     def set_attribute(self, email, password, id_facebook, id_google ):
         self.email = email
-        self.password = generate_password_hash(password)
+        if password is not None:
+            self.password = generate_password_hash(password)
         self.id_facebook = id_facebook
         self.id_google = id_google
 
@@ -66,8 +67,16 @@ class Message(Base):
 class BlockToken(Base):
     __tablename__ = "BlockToken"
     id = Column('ID' ,Integer, primary_key=True)
-    jti = Column('JTI',String(300),nullable=False)
+    jti = Column('JTI',String(300),nullable=True)
+    state = Column('STATE',String(300),nullable=True)
 
     def set_attribute(self, jti):
         self.jti = jti
+
+    def set_state(self, state):
+        self.state = state
+
+
+
+
 
