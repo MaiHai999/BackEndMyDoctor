@@ -37,6 +37,9 @@ flow = Flow.from_client_secrets_file(
 
 
 
+
+
+
 # Đăng nhập vào MySQL
 user = os.environ.get('user_login')
 password_db = os.environ.get('password_login')
@@ -274,6 +277,9 @@ def callback():
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
+
+
+
 
 
 
