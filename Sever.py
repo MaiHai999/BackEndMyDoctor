@@ -1,5 +1,7 @@
 import Config
 from BackEnd.source.Config import limiter
+from BackEnd.source.Config import mail
+
 from flask import Flask
 from BackEnd.source.controller.AccountController import auth_blueprint
 from BackEnd.source.controller.ConversationController import con_blueprint
@@ -11,6 +13,7 @@ from flask_jwt_extended import JWTManager
 from flask import jsonify
 from flask_cors import CORS
 
+
 app = Flask(__name__)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 CORS(app)
@@ -18,13 +21,18 @@ app.register_blueprint(auth_blueprint, url_prefix='/auth')
 app.register_blueprint(con_blueprint, url_prefix='/mess')
 app.secret_key = os.environ.get("SECRET_KEY")
 
-
-
 app.config["JWT_SECRET_KEY"] = os.environ.get("SECRET_KEY_JWT")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 
+# Cấu hình Flask-Mail để sử dụng Gmail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 
+mail.init_app(app)
 jwt = JWTManager(app)
 limiter.init_app(app)
 

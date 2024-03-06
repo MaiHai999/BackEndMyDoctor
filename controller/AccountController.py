@@ -2,13 +2,15 @@ from BackEnd.source.entity.MyConnectPro import MyConnectPro
 from BackEnd.source.services.models import *
 from BackEnd.source.entity.MyConnectPro import EntityHandler
 from BackEnd.source.Config import limiter
+from BackEnd.source.Config import mail
+from BackEnd.source.entity.TokenVertification import TokenVertification
+from BackEnd.source.entity.MailHandler import EmailSender
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
 from flask_jwt_extended import get_jwt_identity, get_jwt
-from flask_jwt_extended import unset_jwt_cookies
 from flask_jwt_extended import jwt_required
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 from sqlalchemy.exc import NoResultFound
 
 from flask import Blueprint
@@ -36,8 +38,8 @@ flow = Flow.from_client_secrets_file(
 )
 
 
-
-
+#khởi tạo đối tượng gửi mail
+email_sender = EmailSender(mail)
 
 
 # Đăng nhập vào MySQL
@@ -142,8 +144,9 @@ def validation_register(email):
     except NoResultFound:
         return 0
 
+
 @auth_blueprint.route('/register', methods=["POST"])
-@limiter.limit("20 per day")
+# @limiter.limit("20 per day")
 def register():
     try:
         #lấy các tham số
@@ -151,9 +154,30 @@ def register():
         password = request.json.get('password')
 
         if validation_register(email):
-            response = jsonify({"msg": "Email already exists"})
-            return response, 200
+            response = jsonify({"error": "Email already exists"})
+            return response, 500
         else:
+            token_vertify = TokenVertification.generate_token(email , password)
+            email_sender.send_email(recipients= email , token= token_vertify)
+            response = jsonify({"msg": "Vertification"})
+            return response, 200
+
+
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
+
+
+@auth_blueprint.route('/vertification_login', methods=["POST"])
+def vertification_login():
+    try:
+        token = request.json.get('token')
+        data = TokenVertification.confirm_token(token)
+
+        if data:
+            email = data['email']
+            password = data['password']
             users = User()
             users.set_attribute(email, password, None, None)
             is_successfully = EntityHandler.save(session_db, users)
@@ -164,11 +188,44 @@ def register():
                 response = jsonify({"error": "Internal Server Error"})
                 return response, 500
 
+        else:
+            response = jsonify({"error": "Internal Server Error"})
+            return response, 405
 
     except Exception as e:
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @auth_blueprint.route('/login_gg' , methods=['post'])
