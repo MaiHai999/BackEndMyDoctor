@@ -27,6 +27,9 @@ class User(Base):
         self.id_facebook = id_facebook
         self.id_google = id_google
 
+    def set_password(self , password):
+        self.password = generate_password_hash(password)
+
 class Conversation(Base):
     __tablename__ = "Conversations"
     id = Column('ID' ,Integer, primary_key=True, autoincrement=True)

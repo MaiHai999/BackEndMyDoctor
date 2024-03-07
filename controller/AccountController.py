@@ -21,6 +21,7 @@ from flask import abort, redirect
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 from pip._vendor import cachecontrol
+from sqlalchemy.exc import IntegrityError
 
 import google.auth.transport.requests
 import requests
@@ -61,7 +62,7 @@ def check_login(email , password):
         return None
 
 @auth_blueprint.route('/login' , methods=['POST'])
-@limiter.limit("20 per day")
+# @limiter.limit("20 per day")
 def login():
     try:
         #Lấy các tham số
@@ -73,7 +74,7 @@ def login():
         if user is None:
             return jsonify({"msg": "Email not registered"}), 401
         elif user is False:
-            return jsonify({"msg": "Incorrect password"}), 401
+            return jsonify({"msg": "Incorrect password"}), 402
         else:
             iden_info = {
                 "id_user": user.id
@@ -115,7 +116,7 @@ def refresh():
 
 @auth_blueprint.route('/logout', methods=["GET"])
 @jwt_required()
-@limiter.limit("20 per day")
+# @limiter.limit("20 per day")
 def logout():
     try:
         jwt = get_jwt()
@@ -137,13 +138,12 @@ def logout():
         response = jsonify({"error": error_message})
         return response, 500
 
-def validation_register(email):
+def check_email(email):
     try:
         user = session_db.query(User).filter(User.email == email).one()
-        return 1
+        return True
     except NoResultFound:
-        return 0
-
+        return False
 
 @auth_blueprint.route('/register', methods=["POST"])
 # @limiter.limit("20 per day")
@@ -153,12 +153,12 @@ def register():
         email = request.json.get('email')
         password = request.json.get('password')
 
-        if validation_register(email):
+        if check_email(email):
             response = jsonify({"error": "Email already exists"})
-            return response, 500
+            return response, 405
         else:
             token_vertify = TokenVertification.generate_token(email , password)
-            email_sender.send_email(recipients= email , token= token_vertify)
+            email_sender.send_email_login(recipient= email , token= token_vertify)
             response = jsonify({"msg": "Vertification"})
             return response, 200
 
@@ -169,7 +169,8 @@ def register():
         return response, 500
 
 
-@auth_blueprint.route('/vertification_login', methods=["POST"])
+@auth_blueprint.route('/vertification_register', methods=["POST"])
+# @limiter.limit("20 per day")
 def vertification_login():
     try:
         token = request.json.get('token')
@@ -178,15 +179,20 @@ def vertification_login():
         if data:
             email = data['email']
             password = data['password']
-            users = User()
-            users.set_attribute(email, password, None, None)
-            is_successfully = EntityHandler.save(session_db, users)
-            if is_successfully:
-                response = jsonify({"msg": "Register successfully"})
-                return response, 200
-            else:
-                response = jsonify({"error": "Internal Server Error"})
+
+            if check_email(email):
+                response = jsonify({"error": "Email already exists"})
                 return response, 500
+            else:
+                users = User()
+                users.set_attribute(email, password, None, None)
+                is_successfully = EntityHandler.save(session_db, users)
+                if is_successfully:
+                    response = jsonify({"msg": "Register successfully"})
+                    return response, 200
+                else:
+                    response = jsonify({"error": "Internal Server Error"})
+                    return response, 500
 
         else:
             response = jsonify({"error": "Internal Server Error"})
@@ -198,37 +204,68 @@ def vertification_login():
         return response, 500
 
 
+@auth_blueprint.route('/reset_password', methods=["POST"])
+# @limiter.limit("20 per day")
+def reset_password():
+    try:
+        email = request.json.get('email')
+        password = request.json.get('password')
+
+        if check_email(email):
+            token_vertify = TokenVertification.generate_token(email, password)
+            email_sender.send_email_reset(recipient=email, token=token_vertify)
+            response = jsonify({"msg": "Vertification"})
+            return response, 200
+
+        else:
+            response = jsonify({"error": "Email is not exists"})
+            return response, 405
 
 
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
 
 
+@auth_blueprint.route('/vertification_reset', methods=["POST"])
+# @limiter.limit("20 per day")
+def vertification_reset_password():
+    try:
+        token = request.json.get('token')
+        data = TokenVertification.confirm_token(token)
+
+        if data:
+            email = data['email']
+            password = data['password']
+
+            if check_email(email):
+                try:
+                    user_update = session_db.query(User).filter_by(email=email).first()
+                    user_update.set_password(password)
+                    session_db.commit()
+                    response = jsonify({"msg": "Successfully"})
+                    return response, 200
+
+                except IntegrityError as e:
+                    session_db.rollback()
+                    response = jsonify({"msg": e})
+                    return response, 500
 
 
+            else:
+                response = jsonify({"msg": "Email is not exists"})
+                return response, 500
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
 
 
 @auth_blueprint.route('/login_gg' , methods=['post'])
+# @limiter.limit("20 per day")
 def login_gg():
     try:
         authorization_url, state = flow.authorization_url()
@@ -237,7 +274,7 @@ def login_gg():
 
         is_successfully = EntityHandler.save(session_db, token)
         if is_successfully:
-            return jsonify({'authorization_url': authorization_url})
+            return jsonify({'authorization_url': authorization_url}) , 200
         else:
             response = jsonify({"error": "Internal Server Error"})
             return response, 500
@@ -266,15 +303,9 @@ def check_google_id(google_id ):
             return user
 
     return None
-def check_email(email):
-    list_user = EntityHandler.get_all(session_db, User)
-    for user in list_user:
-        if user.email == email:
-            return True
-
-    return False
 
 @auth_blueprint.route("/callback")
+# @limiter.limit("20 per day")
 def callback():
     try:
         flow.fetch_token(authorization_response=request.url)
@@ -312,7 +343,7 @@ def callback():
             is_email = check_email(email)
             if is_email:
                 response = jsonify({"error": "Email already exists"})
-                return response, 500
+                return response, 404
             else:
                 users = User()
                 users.set_attribute(email, None, None, google_id)
