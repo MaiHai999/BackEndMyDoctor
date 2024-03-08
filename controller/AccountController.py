@@ -171,7 +171,7 @@ def register():
 
 @auth_blueprint.route('/vertification_register', methods=["POST"])
 # @limiter.limit("20 per day")
-def vertification_login():
+def vertification_register():
     try:
         token = request.json.get('token')
         data = TokenVertification.confirm_token(token)
@@ -182,7 +182,7 @@ def vertification_login():
 
             if check_email(email):
                 response = jsonify({"error": "Email already exists"})
-                return response, 500
+                return response, 405
             else:
                 users = User()
                 users.set_attribute(email, password, None, None)
@@ -196,12 +196,24 @@ def vertification_login():
 
         else:
             response = jsonify({"error": "Internal Server Error"})
-            return response, 405
+            return response, 406
 
     except Exception as e:
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
+
+
+def check_email_id(email):
+    try:
+        user = session_db.query(User).filter(User.email == email).one()
+        if user.id_google is None and user.id_facebook is None:
+            return True
+        else:
+            return False
+    except NoResultFound:
+        return False
+
 
 
 @auth_blueprint.route('/reset_password', methods=["POST"])
@@ -211,7 +223,7 @@ def reset_password():
         email = request.json.get('email')
         password = request.json.get('password')
 
-        if check_email(email):
+        if check_email_id(email):
             token_vertify = TokenVertification.generate_token(email, password)
             email_sender.send_email_reset(recipient=email, token=token_vertify)
             response = jsonify({"msg": "Vertification"})
@@ -219,7 +231,7 @@ def reset_password():
 
         else:
             response = jsonify({"error": "Email is not exists"})
-            return response, 405
+            return response, 407
 
 
     except Exception as e:
@@ -239,7 +251,7 @@ def vertification_reset_password():
             email = data['email']
             password = data['password']
 
-            if check_email(email):
+            if check_email_id(email):
                 try:
                     user_update = session_db.query(User).filter_by(email=email).first()
                     user_update.set_password(password)
@@ -255,7 +267,11 @@ def vertification_reset_password():
 
             else:
                 response = jsonify({"msg": "Email is not exists"})
-                return response, 500
+                return response, 407
+
+        else:
+            response = jsonify({"error": "Internal Server Error"})
+            return response, 406
 
 
     except Exception as e:
