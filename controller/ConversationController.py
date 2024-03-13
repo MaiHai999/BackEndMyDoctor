@@ -70,7 +70,7 @@ def check_conversation(id_user , id_conversation):
 
 @con_blueprint.route('/message', methods=["GET"])
 @jwt_required()
-@limiter.limit("70 per 15 minutes")
+# @limiter.limit("70 per 15 minutes")
 def get_message():
     try:
         identity = get_jwt_identity()
@@ -100,7 +100,7 @@ def get_message():
         return response, 500
 
 @con_blueprint.route('/del_con', methods=["GET"])
-@limiter.limit("70 per 15 minutes")
+# @limiter.limit("70 per 15 minutes")
 @jwt_required()
 def delete():
     try:
@@ -142,7 +142,7 @@ def chat():
 
 @con_blueprint.route('/save', methods=["GET"])
 @jwt_required()
-@limiter.limit("10 per minute")
+# @limiter.limit("10 per minute")
 def save_conversation():
     try:
         identity = get_jwt_identity()
@@ -193,7 +193,7 @@ def check_message(id_user , id_message):
 
 @con_blueprint.route('/emotion', methods=["GET"])
 @jwt_required()
-@limiter.limit("30 per minute")
+# @limiter.limit("30 per minute")
 def save_emotions():
     try:
         identity = get_jwt_identity()
