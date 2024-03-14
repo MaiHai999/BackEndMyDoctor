@@ -34,7 +34,7 @@ base_url = os.environ.get('base_url')
 
 @con_blueprint.route('/conversation', methods=["GET"])
 @jwt_required()
-@limiter.limit("30 per 15 minutes")
+# @limiter.limit("30 per 15 minutes")
 def get_all_conversation():
     try:
         identity = get_jwt_identity()
