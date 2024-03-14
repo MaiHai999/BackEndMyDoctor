@@ -56,11 +56,6 @@ def token_in_blocklist_callback(jwt_header, jwt_data):
         response = jsonify({"error": error_message})
         return response, 500
 
-@jwt.unauthorized_loader
-def unauthorized_callback(callback):
-    return jsonify({
-        'message': 'Missing Authorization Header'
-    }), 428
 
 
 if __name__ == '__main__':

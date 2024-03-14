@@ -72,7 +72,7 @@ def login():
 
         #tạo tokens
         if user is None:
-            return jsonify({"msg": "Email not registered"}), 401
+            return jsonify({"msg": "Email not registered"}), 408
         elif user is False:
             return jsonify({"msg": "Incorrect password"}), 402
         else:
@@ -137,6 +137,7 @@ def logout():
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
+
 
 def check_email(email):
     try:
