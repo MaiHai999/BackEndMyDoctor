@@ -29,7 +29,7 @@ session = db_manager.get_session()
 
 #khởi tạo llm
 base_url = os.environ.get('base_url')
-# LLM = LLMController(base_url)
+LLM = LLMController(base_url)
 
 
 @con_blueprint.route('/conversation', methods=["GET"])
@@ -128,7 +128,8 @@ def delete():
 
 
 @con_blueprint.route('/chat', methods=["GET"])
-@limiter.limit("10 per minute")
+# @limiter.limit("10 per minute")
+@jwt_required()
 def chat():
     try:
         human_message = request.args.get('human')
