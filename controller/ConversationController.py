@@ -14,6 +14,8 @@ from flask import request , stream_with_context
 from flask import jsonify
 import os
 from sqlalchemy.exc import IntegrityError
+from nltk.tokenize import word_tokenize , RegexpTokenizer
+
 
 
 con_blueprint = Blueprint('conversation', __name__)
@@ -141,6 +143,16 @@ def chat():
         return response, 500
 
 
+def generation_title(text):
+    tokenizer = RegexpTokenizer(r'[^.!?]+(?:[.!?](?![0-9]))?')
+    sentences = tokenizer.tokenize(text)
+    first_sentence = sentences[0]
+    words = word_tokenize(first_sentence)
+    selected_words = words[:7] if len(words) >= 7 else words
+    selected_sentence = " ".join(selected_words)
+    return selected_sentence
+
+
 @con_blueprint.route('/save', methods=["GET"])
 @jwt_required()
 # @limiter.limit("10 per minute")
@@ -150,18 +162,29 @@ def save_conversation():
         id_user = identity['id_user']
         human_message = request.args.get('human')
         ai_message = request.args.get('ai')
+        id_conversation = int(request.args.get('id_conversation'))
 
         try:
-            new_conversation = Conversation()
-            id = EntityHandler.generative_ID(session, Conversation)
-            new_conversation.set_attribute(title="Tăng huyết áp" , create_date=datetime.now() , id_user=id_user)
-            new_conversation.set_ID(id)
-            session.add(new_conversation)
+            if id_conversation == -1:
+                new_conversation = Conversation()
+                id = EntityHandler.generative_ID(session, Conversation)
+                new_conversation.set_attribute(title=generation_title(human_message) , create_date=datetime.now() , id_user=id_user)
+                new_conversation.set_ID(id)
+                session.add(new_conversation)
 
-            new_message = Message()
-            new_message.set_attribute(human=human_message , ai=ai_message , create_date=datetime.now() ,id_conversation=new_conversation.id)
-            session.add(new_message)
-            session.commit()
+                index_id = new_conversation.id
+
+                new_message = Message()
+                new_message.set_attribute(human=human_message , ai=ai_message , create_date=datetime.now() ,id_conversation=new_conversation.id)
+                session.add(new_message)
+                session.commit()
+            else:
+                new_message = Message()
+                new_message.set_attribute(human=human_message, ai=ai_message, create_date=datetime.now(),id_conversation=id_conversation)
+                session.add(new_message)
+                session.commit()
+                index_id = id_conversation
+
 
         except IntegrityError as e:
             session.rollback()
@@ -169,7 +192,7 @@ def save_conversation():
             response = jsonify({"error": error_message})
             return response, 500
 
-        response = jsonify({"msg": "Successfully"})
+        response = jsonify({"index": index_id})
         return response, 200
 
     except Exception as e:
