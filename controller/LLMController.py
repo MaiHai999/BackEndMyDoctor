@@ -4,6 +4,10 @@ from underthesea import classify
 from translate import Translator
 from langchain_core.prompts import ChatPromptTemplate
 
+import threading
+stop_event = threading.Event()
+
+
 
 class LLMController:
     def __init__(self,url):
@@ -31,16 +35,27 @@ class LLMController:
         return 'suc_khoe' == result[0]
 
     def query_message(self , message):
+        stop_event.clear()
         if self.check_text(message):
             translated_text = self.translator.translate(message)
             list_of_context = self.db.querying(translated_text , k=2)
             context = ' '.join(list_of_context)
             for chunk in self.chain_main.stream({"input": message, "context" : context}):
-                yield chunk
+                if not stop_event.is_set():
+                    yield chunk
+                else:
+                    raise Exception("Hàm đã bị huỷ.")
 
         else:
             for chunk in self.chain_general.stream({"input": message}):
-                yield chunk
+                if not stop_event.is_set():
+                    yield chunk
+                else:
+                    raise Exception("Hàm đã bị huỷ.")
+
+    def stop(self):
+        stop_event.set()
+
 
 if __name__ == "__main__":
     base_url = "http://192.168.1.7:9999/v1"

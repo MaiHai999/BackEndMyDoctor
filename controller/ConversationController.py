@@ -18,6 +18,8 @@ from nltk.tokenize import word_tokenize , RegexpTokenizer
 
 
 
+
+
 con_blueprint = Blueprint('conversation', __name__)
 #lấy limiter
 
@@ -137,10 +139,29 @@ def chat():
         human_message = request.args.get('human')
         streamed_data = LLM.query_message(human_message)
         return stream_with_context(streamed_data), 200
+
     except Exception as e:
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
+
+
+
+@con_blueprint.route('/stop', methods=["GET"])
+# @limiter.limit("10 per minute")
+@jwt_required()
+def stop_chat():
+    try:
+        LLM.stop()
+        response = jsonify({"msg": "Stop conversation successfully"})
+        return response, 200
+    except Exception as e:
+        error_message = "Error: {}".format(str(e))
+        response = jsonify({"error": error_message})
+        return response, 500
+
+
+
 
 
 def generation_title(text):
