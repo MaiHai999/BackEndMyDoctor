@@ -16,7 +16,7 @@ import os
 from sqlalchemy.exc import IntegrityError
 from nltk.tokenize import word_tokenize , RegexpTokenizer
 
-
+from threading import Thread
 
 
 
@@ -159,10 +159,6 @@ def stop_chat():
         error_message = "Error: {}".format(str(e))
         response = jsonify({"error": error_message})
         return response, 500
-
-
-
-
 
 def generation_title(text):
     tokenizer = RegexpTokenizer(r'[^.!?]+(?:[.!?](?![0-9]))?')
