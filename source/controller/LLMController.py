@@ -1,8 +1,7 @@
-from BackEnd.source.entity.LoadVectorDB import LoadVectorDB
-from BackEnd.source.entity.LoadLLM import LoadLLM
+from BackEnd.source.source.entity.LoadVectorDB import LoadVectorDB
+from BackEnd.source.source.entity.LoadLLM import LoadLLM
 from underthesea import classify
 from translate import Translator
-from langchain_core.prompts import ChatPromptTemplate
 
 import threading
 stop_event = threading.Event()

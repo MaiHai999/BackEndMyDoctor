@@ -1,6 +1,5 @@
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_community.vectorstores import FAISS
-from BackEnd.source.Config import *
 import time
 import os
 
@@ -37,7 +36,7 @@ class LoadVectorDB:
 if __name__ == "__main__":
     start_time = time.time()
 
-    path = "../../asset/database/db_vector_en"
+    path = "../../../asset/database/db_vector_en"
     db = LoadVectorDB(path)
 
     print(db.get_len_db())

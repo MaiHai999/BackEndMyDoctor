@@ -1,12 +1,11 @@
-import Config
-from BackEnd.source.Config import limiter
-from BackEnd.source.Config import mail
+from BackEnd.source.source.Config import limiter
+from BackEnd.source.source.Config import mail
 
 from flask import Flask
-from BackEnd.source.controller.AccountController import auth_blueprint
-from BackEnd.source.controller.ConversationController import con_blueprint
-from BackEnd.source.entity.MyConnectPro import MyConnectPro
-from BackEnd.source.services.models import *
+from BackEnd.source.source.controller.AccountController import auth_blueprint
+from BackEnd.source.source.controller.ConversationController import con_blueprint
+from BackEnd.source.source.entity.MyConnectPro import MyConnectPro
+from BackEnd.source.source.services.models import *
 from datetime import timedelta
 import os
 from flask_jwt_extended import JWTManager

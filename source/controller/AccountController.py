@@ -1,10 +1,9 @@
-from BackEnd.source.entity.MyConnectPro import MyConnectPro
-from BackEnd.source.services.models import *
-from BackEnd.source.entity.MyConnectPro import EntityHandler
-from BackEnd.source.Config import limiter
-from BackEnd.source.Config import mail
-from BackEnd.source.entity.TokenVertification import TokenVertification
-from BackEnd.source.entity.MailHandler import EmailSender
+from BackEnd.source.source.entity.MyConnectPro import MyConnectPro
+from BackEnd.source.source.services.models import *
+from BackEnd.source.source.entity.MyConnectPro import EntityHandler
+from BackEnd.source.source.Config import mail
+from BackEnd.source.source.entity.TokenVertification import TokenVertification
+from BackEnd.source.source.entity.MailHandler import EmailSender
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import create_refresh_token
@@ -16,7 +15,6 @@ from sqlalchemy.exc import NoResultFound
 from flask import Blueprint
 from flask import request
 from flask import jsonify
-from flask import abort, redirect
 
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
