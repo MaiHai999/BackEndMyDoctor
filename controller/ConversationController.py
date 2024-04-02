@@ -38,7 +38,7 @@ LLM = LLMController(base_url)
 
 @con_blueprint.route('/conversation', methods=["GET"])
 @jwt_required()
-# @limiter.limit("30 per 15 minutes")
+@limiter.limit("30 per 15 minutes")
 def get_all_conversation():
     try:
         identity = get_jwt_identity()
@@ -74,7 +74,7 @@ def check_conversation(id_user , id_conversation):
 
 @con_blueprint.route('/message', methods=["GET"])
 @jwt_required()
-# @limiter.limit("70 per 15 minutes")
+@limiter.limit("70 per 15 minutes")
 def get_message():
     try:
         identity = get_jwt_identity()
@@ -148,7 +148,7 @@ def chat():
 
 
 @con_blueprint.route('/stop', methods=["GET"])
-# @limiter.limit("10 per minute")
+@limiter.limit("10 per minute")
 @jwt_required()
 def stop_chat():
     try:
