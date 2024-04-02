@@ -1,9 +1,10 @@
 
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, Column, Integer, String , text
 from sqlalchemy.orm import sessionmaker
-from BackEnd.source.source.services.models import User
-from BackEnd.source.source.entity.EntityHandler import EntityHandler
+from BackEnd.source.services.models import User
+from sqlalchemy.sql import select
+from BackEnd.source.entity.EntityHandler import EntityHandler
 
 class MyConnectPro:
     def __init__(self ,user , password, database = 'MyDoctor', host = 'localhost' , port = 3306):
