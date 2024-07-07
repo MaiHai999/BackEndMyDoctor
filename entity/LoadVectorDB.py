@@ -38,7 +38,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     path = "../../asset/database/db_vector_en"
-    db = LoadVectorDB(path)
+    db = LoadVectorDB()
 
     print(db.get_len_db())
 
