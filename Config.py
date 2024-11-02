@@ -27,10 +27,10 @@ os.environ["base_url"] = "http://192.168.1.5:9999/v1"
 os.environ["path_vector_db"] = project_root + "/BackEnd/asset/database/db_vector_en"
 
 os.environ["client_secrets_file"] = project_root + "/BackEnd/asset/client_secret.json"
-os.environ["GOOGLE_CLIENT_ID"] = "309708343797-apbnss2jt41pb0jo3baj1d5bjjpbj71f.apps.googleusercontent.com"
+os.environ["GOOGLE_CLIENT_ID"] = ""
 
-os.environ["SECRET_KEY"] = "ongbagiataolohet"
-os.environ["SECURITY_PASSWORD_SALT"] = "fkslkfsdlkfrgufnsfd"
+os.environ["SECRET_KEY"] = ""
+os.environ["SECURITY_PASSWORD_SALT"] = ""
 
-os.environ["MAIL_USERNAME"] = "maithanhhai.tt@gmail.com"
-os.environ["MAIL_PASSWORD"] = "govnerbainslqhaj"
+os.environ["MAIL_USERNAME"] = ""
+os.environ["MAIL_PASSWORD"] = ""
